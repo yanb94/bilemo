@@ -28,4 +28,10 @@ services:
     # please note that last definitions always *replace* previous ones
     facebook_user_provider:
         class: App\Security\FacebookUserProvider
-        arguments: ["@csa_guzzle.client.facebook_api", "@jms_serializer"]
+        arguments: ["@csa_guzzle.client.facebook_api", "@jms_serializer","@doctrine.orm.entity_manager"]
+    
+    App\EventListener\UserFilterConfigurator:
+        tags:
+            - { name: kernel.event_listener, event: kernel.request, priority: 5 }
+        # Autoconfiguration must be disabled to set a custom priority
+        autoconfigure: false

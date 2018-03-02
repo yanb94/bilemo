@@ -4,3 +4,8 @@ api_platform:
     enable_nelmio_api_doc: true
     exception_to_status:
       App\Exception\NotGrantedFacebookException: 401
+doctrine:
+    orm:
+        filters:
+            user_filter:
+                class: App\Filter\UserFilter

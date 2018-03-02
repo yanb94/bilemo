@@ -46,17 +46,8 @@ class FacebookAuthenticator implements SimplePreAuthenticatorInterface, Authenti
         }
 
         $apiKey = $token->getCredentials();
-        $username = $userProvider->getUsernameForApiKey($apiKey);
 
-        if (!$username) {
-            // CAUTION: this message will be returned to the client
-            // (so don't put any un-trusted messages / error strings here)
-            throw new CustomUserMessageAuthenticationException(
-                sprintf('API Key "%s" does not exist.', $apiKey)
-            );
-        }
-
-        $user = $userProvider->loadUserByUsername($username);
+        $user = $userProvider->loadUserByUsername($apiKey);
 
         return new PreAuthenticatedToken(
             $user,
