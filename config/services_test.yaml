@@ -7,3 +7,7 @@ services:
     # aliases are prefixed with test. For example:
     #
     # test.App\Service\MyService: '@App\Service\MyService'
+    facebook_user_provider:
+        class: App\Security\FacebookUserProvider
+        arguments: ["@csa_guzzle.client.facebook_api", "@jms_serializer","@doctrine.orm.entity_manager"]
+        public: true

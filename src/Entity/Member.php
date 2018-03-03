@@ -10,12 +10,16 @@ use ApiPlatform\Core\Annotation\ApiSubresource;
 use Symfony\Component\Validator\Constraints as Assert;
 use App\Annotation\UserAware;
 use App\Entity\User;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\MemberRepository")
  * @UniqueEntity("username")
  * @UniqueEntity("email")
- * @ApiResource(collectionOperations={"get","post"}, itemOperations={"get","delete"})
+ * @ApiResource(collectionOperations={"get","post"}, itemOperations={"get","delete"},attributes={
+ *     "normalization_context"={"groups"={"read"}},
+ *     "denormalization_context"={"groups"={"write"}}
+ * })
  * @UserAware(userFieldName="client_id")
  */
 class Member
@@ -24,12 +28,14 @@ class Member
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Groups("read")
      */
     private $id;
 
     /**
      * @var string
      * @Assert\NotBlank()
+     * @Groups({"read","write"})
      * @Assert\Length(min = 2, max = 50)
      * @ORM\Column(name="username", type="string", length=255, unique=true)
      */
@@ -38,6 +44,7 @@ class Member
     /**
      * @var string
      * @Assert\NotBlank()
+     * @Groups({"read","write"})
      * @Assert\Length(min = 2, max = 80)
      * @ORM\Column(name="firstname", type="string", length=255)
      */
@@ -46,6 +53,7 @@ class Member
     /**
      * @var string
      * @Assert\NotBlank()
+     * @Groups({"read","write"})
      * @Assert\Length(min = 2, max = 80)
      * @ORM\Column(name="lastname", type="string", length=255)
      */
@@ -54,6 +62,7 @@ class Member
     /**
      * @var string
      * @Assert\Email()
+     * @Groups({"read","write"})
      * @ORM\Column(name="email", type="string", length=255, unique=true)
      */
     private $email;
@@ -61,6 +70,7 @@ class Member
     /**
      * @var \DateTime
      * @Assert\Date()
+     * @Groups({"read","write"})
      * @ORM\Column(name="birthdate", type="date")
      */
     private $birthdate;
@@ -68,6 +78,7 @@ class Member
     /**
      * @var App\Entity\User
      * @Gedmo\Blameable(on="create")
+     * @Groups({"read"})
      * @ORM\ManyToOne(targetEntity="App\Entity\User")
      * @ApiSubresource
      */
@@ -76,6 +87,7 @@ class Member
     /**
      * @var string
      * @Assert\NotBlank()
+     * @Groups({"read","write"})
      * @Assert\Length(min = 10, max = 80)
      * @ORM\Column(name="adresse", type="string", length=255)
      */
@@ -84,6 +96,7 @@ class Member
     /**
      * @var string
      * @Assert\NotBlank()
+     * @Groups({"read","write"})
      * @Assert\Length(min = 9, max = 20)
      * @ORM\Column(name="phone", type="string", length=255)
      */

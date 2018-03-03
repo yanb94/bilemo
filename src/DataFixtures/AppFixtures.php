@@ -5,13 +5,21 @@ namespace App\DataFixtures;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\Persistence\ObjectManager;
 use App\Entity\Product;
+use App\Entity\User;
+use App\Entity\Member;
+use Symfony\Component\HttpKernel\KernelInterface;
 
 class AppFixtures extends Fixture
 {
+    private $kernel;
+
+    public function __construct(KernelInterface $kernel)
+    {
+        $this->kernel = $kernel;
+    }
+
     public function load(ObjectManager $manager)
     {
-        // $product = new Product();
-        // $manager->persist($product);
 
         $data = [
             [
@@ -75,6 +83,39 @@ class AppFixtures extends Fixture
             ;
 
             $manager->persist($product);
+        }
+
+        if ($this->kernel->getEnvironment() == 'test') {
+            $user = new User('fakeUser', "0000000000000", "email@email.com");
+
+            $memberOne = new Member();
+            $memberTwo = new Member();
+
+            $memberOne
+                ->setUsername("username")
+                ->setFirstname("prénom")
+                ->setLastname("nom")
+                ->setEmail("coco3@coco.fr")
+                ->setBirthdate(new \DateTime('now'))
+                ->setAdresse("Une belle adresse")
+                ->setPhone("0000000000000")
+                ->setClient($user)
+            ;
+
+            $memberTwo
+                ->setUsername("username2")
+                ->setFirstname("prénom")
+                ->setLastname("nom")
+                ->setEmail("coco2@coco.fr")
+                ->setBirthdate(new \DateTime('now'))
+                ->setAdresse("Une belle adresse")
+                ->setPhone("0000000000000")
+                ->setClient($user)
+            ;
+
+            $manager->persist($user);
+            $manager->persist($memberOne);
+            $manager->persist($memberTwo);
         }
 
         $manager->flush();
