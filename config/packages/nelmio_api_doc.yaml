@@ -7,4 +7,5 @@ nelmio_api_doc:
     routes: # to filter documented routes
         path_patterns:
             - ^/api/products
+            - ^/api/members
             # - ^\/api(?!\/doc|docs$) # Accepts routes under /api except /api/doc

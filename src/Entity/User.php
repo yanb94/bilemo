@@ -4,9 +4,18 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
+use ApiPlatform\Core\Annotation\ApiResource;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
+ * @UniqueEntity("username")
+ * @UniqueEntity("email")
+ * @ApiResource(collectionOperations={},itemOperations={"get"},attributes={
+ *     "normalization_context"={"groups"={"read"}},
+ *     "denormalization_context"={"groups"={"write"}}
+ * })
  */
 class User implements UserInterface
 {
@@ -14,51 +23,70 @@ class User implements UserInterface
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Groups("read")
      */
     private $id;
 
     /**
      * @var string
      * @ORM\Column(name="username", type="string", length=255, unique=true)
+     * @Groups({"read","write"})
      */
     private $username;
 
     /**
      * @var string
      * @ORM\Column(name="fullname", type="string", length=255)
+     * @Groups({"read","write"})
      */
     private $fullname;
 
     /**
      * @var string
      * @ORM\Column(name="email", type="string", length=255, unique=true)
+     * @Groups({"read","write"})
      */
     private $email;
 
     /**
      * @var string
      * @ORM\Column(name="adresse", type="string", length=255)
+     * @Groups({"read","write"})
      */
     private $adresse;
 
     /**
      * @var string
      * @ORM\Column(name="phone", type="string", length=255)
+     * @Groups({"read","write"})
      */
     private $phone;
 
     /**
      * @var string
      * @ORM\Column(name="siret", type="string", length=255, unique=true)
+     * @Groups({"read","write"})
      */
     private $siret;
 
     /**
      * @var string
      * @ORM\Column(name="adresseFacturation", type="string", length=255)
+     * @Groups({"read","write"})
      */
     private $adresseFacturation;
 
+
+    public function __construct($fullname, $facebookId, $email)
+    {
+        $this->fullname = $fullname;
+        $this->username = $facebookId;
+        $this->email = $email;
+        $this->adresse = "1, Allée Boris Vian";
+        $this->phone = "0100000000";
+        $this->adresseFacturation = "1, Allée Boris Vian";
+        $this->siret = "80519095600013";
+    }
 
     /**
      * @return mixed

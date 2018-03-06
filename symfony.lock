@@ -11,6 +11,9 @@
             "ref": "b50f8aa321cc40c380dda7605aa5cef66f476802"
         }
     },
+    "behat/transliterator": {
+        "version": "v1.2.0"
+    },
     "composer/ca-bundle": {
         "version": "1.1.0"
     },
@@ -100,6 +103,9 @@
     },
     "exsyst/swagger": {
         "version": "v0.4.0"
+    },
+    "gedmo/doctrine-extensions": {
+        "version": "v2.4.33"
     },
     "gitonomy/gitlib": {
         "version": "v1.0.3"
@@ -206,8 +212,20 @@
     "squizlabs/php_codesniffer": {
         "version": "3.2.3"
     },
+    "stof/doctrine-extensions-bundle": {
+        "version": "1.2",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "master",
+            "version": "1.2",
+            "ref": "6c1ceb662f8997085f739cd089bfbef67f245983"
+        }
+    },
     "symfony/asset": {
         "version": "v4.0.4"
+    },
+    "symfony/browser-kit": {
+        "version": "v4.0.5"
     },
     "symfony/cache": {
         "version": "v4.0.4"
@@ -224,6 +242,9 @@
             "ref": "c646e4b71af082e94b5014daca36ef6812bad076"
         }
     },
+    "symfony/css-selector": {
+        "version": "v4.0.5"
+    },
     "symfony/debug": {
         "version": "v4.0.4"
     },
@@ -232,6 +253,9 @@
     },
     "symfony/doctrine-bridge": {
         "version": "v4.0.4"
+    },
+    "symfony/dom-crawler": {
+        "version": "v4.0.5"
     },
     "symfony/dotenv": {
         "version": "v4.0.4"

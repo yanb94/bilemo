@@ -20,6 +20,27 @@ class FacebookUserProviderTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
+        $em = $this
+            ->getMockBuilder('Doctrine\ORM\EntityManager')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $repository = $this
+            ->getMockBuilder('App\Repository\UserRepository')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $em
+            ->expects($this->once())
+            ->method('getRepository')
+            ->willReturn($repository)
+            ;
+
+        $repository
+            ->expects($this->once())
+            ->method('__call')
+            ->willReturn(null);
+
         $response = $this
             ->getMockBuilder('Psr\Http\Message\ResponseInterface')
             ->getMock();
@@ -37,18 +58,17 @@ class FacebookUserProviderTest extends TestCase
             ->method('getBody')
             ->willReturn($streamedResponse);
 
-        $userData = ['name' => 'username'];
+        $userData = ['name' => 'username', 'id' => "33333", 'email'=> "example@example.com"];
         $serializer
             ->expects($this->once())
             ->method('deserialize')
             ->willReturn($userData);
 
-        $facebookUserProvider = new FacebookUserProvider($client, $serializer);
-        $username = $facebookUserProvider->getUsernameForApiKey('an-access-token');
+        $facebookUserProvider = new FacebookUserProvider($client, $serializer, $em);
 
-        $user = $facebookUserProvider->loadUserByUsername($username);
+        $user = $facebookUserProvider->loadUserByUsername('an-access-token');
 
-        $expectedUser = new User($userData['name'], "", "");
+        $expectedUser = new User($userData['name'], $userData["id"], $userData['email']);
 
         $this->assertEquals($expectedUser, $user);
         $this->assertEquals('App\Entity\User', get_class($user));
