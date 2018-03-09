@@ -1,3 +1,5 @@
+[![SensioLabsInsight](https://insight.sensiolabs.com/projects/4bdfba57-986f-485d-9905-64130742d59d/big.png)](https://insight.sensiolabs.com/projects/4bdfba57-986f-485d-9905-64130742d59d)
+
 # Bilemo
 
 Ecommerce API for project 7 on Openclassroom
