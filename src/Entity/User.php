@@ -13,7 +13,7 @@ use App\Annotation\UserAware;
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
  * @UniqueEntity("username")
  * @UniqueEntity("email")
- * @ApiResource(collectionOperations={},itemOperations={"get"},attributes={
+ * @ApiResource(itemOperations={"get"},attributes={
  *     "normalization_context"={"groups"={"read"}},
  *     "denormalization_context"={"groups"={"write"}}
  * })
