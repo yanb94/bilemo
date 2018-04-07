@@ -8,13 +8,16 @@ use App\Entity\Product;
 use App\Entity\User;
 use App\Entity\Member;
 use Symfony\Component\HttpKernel\KernelInterface;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class AppFixtures extends Fixture
 {
+    private $encoder;
     private $kernel;
 
-    public function __construct(KernelInterface $kernel)
+    public function __construct(UserPasswordEncoderInterface $encoder, KernelInterface $kernel)
     {
+        $this->encoder = $encoder;
         $this->kernel = $kernel;
     }
 
@@ -86,7 +89,21 @@ class AppFixtures extends Fixture
         }
 
         if ($this->kernel->getEnvironment() == 'test') {
-            $user = new User('fakeUser', "0000000000000", "email@email.com");
+            $user = new User();
+
+            $user->setUsername("username")
+            ->setPlainPassword("password")
+            ->setFullname("Company")
+            ->setEmail("example@example.com")
+            ->setAdresse('Mon adresse')
+            ->setPhone('0148523188')
+            ->setSiret('800055896240')
+            ->setAdresseFacturation("Mon adresse")
+            ;
+
+            $password = $this->encoder->encodePassword($user, $user->getPlainPassword());
+
+            $user->setPassword($password);
 
             $memberOne = new Member();
             $memberTwo = new Member();
