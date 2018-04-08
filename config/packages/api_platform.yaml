@@ -12,6 +12,9 @@ api_platform:
       public: ~
       invalidation:
         enabled: true
+    collection:
+        pagination:
+            items_per_page: 5 # Default value
 doctrine:
     orm:
         filters:
