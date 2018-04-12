@@ -16,6 +16,13 @@
         <env name="SHELL_VERBOSITY" value="-1" />
         <env name="CORS_ALLOW_ORIGIN" value = "^http://localhost" />
         <!-- define your env variables for the test env here -->
+
+        <!-- ###+ lexik/jwt-authentication-bundle ### -->
+        <!-- Key paths should be relative to the project directory -->
+        <env name="JWT_PRIVATE_KEY_PATH" value="config/jwt/private.pem"/>
+        <env name="JWT_PUBLIC_KEY_PATH" value="config/jwt/public.pem"/>
+        <env name="JWT_PASSPHRASE" value="2f0f6d4b51382e4a7ab67039437821e3"/>
+        <!-- ###- lexik/jwt-authentication-bundle ### -->
     </php>
 
     <testsuites>

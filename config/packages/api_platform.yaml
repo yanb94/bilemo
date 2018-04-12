@@ -3,6 +3,18 @@ api_platform:
         paths: ['%kernel.project_dir%/src/Entity']
     exception_to_status:
       App\Exception\NotGrantedFacebookException: 401
+      Symfony\Component\HttpKernel\Exception\BadRequestHttpException: 400
+      Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException: 405
+    http_cache:
+      etag: true
+      max_age: 3600
+      shared_max_age: 3600
+      public: ~
+      invalidation:
+        enabled: true
+    collection:
+        pagination:
+            items_per_page: 5 # Default value
 doctrine:
     orm:
         filters:

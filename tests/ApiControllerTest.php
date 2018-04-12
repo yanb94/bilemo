@@ -22,6 +22,29 @@ class ApiControllerTest extends WebTestCase
         $this->assertSame(200, $client->getResponse()->getStatusCode());
     }
 
+    public function testAuthentification()
+    {
+        $client = static::createClient();
+
+        $crawler = $client->request(
+            'POST',
+            '/api/login_check',
+            [],
+            [],
+            [
+                'CONTENT_TYPE' => 'application/json',
+                "HTTP_ACCEPT" => "application/json"
+
+            ],
+            json_encode([
+              "username" => "username",
+              "password" => "password"
+            ])
+        );
+
+        $this->assertSame(200, $client->getResponse()->getStatusCode());
+    }
+
     /**
      * @dataProvider urlPublicOfGet
      */
@@ -50,7 +73,7 @@ class ApiControllerTest extends WebTestCase
     {
         $client = static::createClient();
 
-        $client = $this->fakeLogin($client);
+        $token = $this->fakeLogin($client);
 
         $crawler = $client->request(
             'GET',
@@ -59,7 +82,8 @@ class ApiControllerTest extends WebTestCase
             [],
             [
                 'CONTENT_TYPE' => 'application/json',
-                "HTTP_ACCEPT" => "application/json"
+                "HTTP_ACCEPT" => "application/json",
+                "HTTP_AUTHORIZATION" => $token
 
             ]
         );
@@ -72,7 +96,7 @@ class ApiControllerTest extends WebTestCase
     {
         $client = static::createClient();
 
-        $client = $this->fakeLogin($client);
+        $token = $this->fakeLogin($client);
 
         $data = [
           "username"=> "username65",
@@ -93,7 +117,8 @@ class ApiControllerTest extends WebTestCase
             [],
             [
                 'CONTENT_TYPE' => 'application/json',
-                "HTTP_ACCEPT" => "application/json"
+                "HTTP_ACCEPT" => "application/json",
+                "HTTP_AUTHORIZATION" => $token
 
             ],
             $data
@@ -112,7 +137,7 @@ class ApiControllerTest extends WebTestCase
     {
         $client = static::createClient();
 
-        $client = $this->fakeLogin($client);
+        $token = $this->fakeLogin($client);
 
         $data = json_encode($data);
 
@@ -123,7 +148,8 @@ class ApiControllerTest extends WebTestCase
             [],
             [
                 'CONTENT_TYPE' => 'application/json',
-                "HTTP_ACCEPT" => "application/json"
+                "HTTP_ACCEPT" => "application/json",
+                "HTTP_AUTHORIZATION" => $token
 
             ],
             $data
@@ -137,35 +163,137 @@ class ApiControllerTest extends WebTestCase
     {
         $client = static::createClient();
 
-        $client = $this->fakeLogin($client);
+        $token = $this->fakeLogin($client);
 
-        $crawler = $client->request('DELETE', '/api/members/2', [], [], ["HTTP_ACCEPT" => "application/json"]);
+        $crawler = $client->request(
+            'DELETE',
+            '/api/members/2',
+            [],
+            [],
+            [
+            "HTTP_ACCEPT" => "application/json",
+            "HTTP_AUTHORIZATION" => $token
+            ]
+        );
 
         $this->assertSame(204, $client->getResponse()->getStatusCode());
     }
 
+    public function testBadAuthentification()
+    {
+        $client = static::createClient();
+
+        $crawler = $client->request(
+            'POST',
+            '/api/login_check',
+            [],
+            [],
+            [
+                'CONTENT_TYPE' => 'application/json',
+                "HTTP_ACCEPT" => "application/json"
+
+            ],
+            json_encode([
+              "username" => "badusername",
+              "password" => "badpassword"
+            ])
+        );
+
+        $this->assertSame(401, $client->getResponse()->getStatusCode());
+    }
+
+    public function testaddUser()
+    {
+        $client = static::createClient();
+        $crawler = $client->request(
+            'POST',
+            '/api/users',
+            [],
+            [],
+            [
+              'CONTENT_TYPE' => 'application/json',
+              "HTTP_ACCEPT" => "application/json"
+
+            ],
+            json_encode([
+              "username"=> "yanb94",
+              "fullname"=> "Ma Companie",
+              "email"=> "moi@moi.fr",
+              "adresse"=> "Mon adresse",
+              "phone"=> "014589327",
+              "siret"=> "7825000333",
+              "adresseFacturation"=> "Mon adresse",
+              "plainPassword"=> "password"
+            ])
+        );
+
+        $this->assertSame(201, $client->getResponse()->getStatusCode());
+
+
+        $crawler = $client->request(
+            'POST',
+            '/api/login_check',
+            [],
+            [],
+            [
+                'CONTENT_TYPE' => 'application/json',
+                "HTTP_ACCEPT" => "application/json"
+
+            ],
+            json_encode([
+              "username" => "yanb94",
+              "password" => "password"
+            ])
+        );
+
+        $this->assertSame(200, $client->getResponse()->getStatusCode());
+    }
+
+    /**
+     * @dataProvider badAddMemberData
+     */
+    public function testBadAddUser($data)
+    {
+        $data = json_encode($data);
+
+        $client = static::createClient();
+        $crawler = $client->request(
+            'POST',
+            '/api/users',
+            [],
+            [],
+            [
+                'CONTENT_TYPE' => 'application/json',
+                "HTTP_ACCEPT" => "application/json"
+
+            ],
+            $data
+        );
+
+        $this->assertSame(400, $client->getResponse()->getStatusCode());
+    }
+
     private function fakeLogin($client)
     {
-        $entityManager = $client->getContainer()
-            ->get('doctrine')
-            ->getManager();
+        $crawler = $client->request(
+            'POST',
+            '/api/login_check',
+            [],
+            [],
+            [
+                'CONTENT_TYPE' => 'application/json',
+                "HTTP_ACCEPT" => "application/json"
 
-        $user = $entityManager->getRepository(User::class)->findOneByUsername("0000000000000");
+            ],
+            json_encode([
+              "username" => "username",
+              "password" => "password"
+            ])
+        );
 
-        $facebookProvider = $this->getMockBuilder('App\Security\FacebookUserProvider')
-        ->disableOriginalConstructor()
-        ->setMethods(['loadUserByUsername'])
-        ->getMock();
+        $token = "Bearer ".json_decode($client->getResponse()->getContent())->token;
 
-        $facebookProvider
-            ->expects($this->once())
-            ->method('loadUserByUsername')
-            ->willReturn($user)
-        ;
-
-        $client->getContainer()->set('facebook_user_provider', $facebookProvider);
-
-        return $client;
+        return $token;
     }
 
     public function urlPublicOfGet()
@@ -255,6 +383,64 @@ class ApiControllerTest extends WebTestCase
                   "phone"=> ""
                 ]
             ]
+        ];
+    }
+
+    public function badAddMemberData()
+    {
+        return [
+          [
+            // Already use data
+            [
+              "username"=> "yanb94",
+              "fullname"=> "Ma Companie",
+              "email"=> "moi@moi.fr",
+              "adresse"=> "Mon adresse",
+              "phone"=> "014589327",
+              "siret"=> "7825000333",
+              "adresseFacturation"=> "Mon adresse",
+              "plainPassword"=> "password"
+            ]
+          ],
+          [
+            // Bad email
+            [
+              "username"=> "yanpp",
+              "fullname"=> "Ma Companie",
+              "email"=> "moimoi.fr",
+              "adresse"=> "Mon adresse",
+              "phone"=> "014589327",
+              "siret"=> "7825000333",
+              "adresseFacturation"=> "Mon adresse",
+              "plainPassword"=> "password"
+            ]
+          ],
+          [
+            // Blank Field
+            [
+              "username"=> "",
+              "fullname"=> "Ma Companie",
+              "email"=> "",
+              "adresse"=> "Mon adresse",
+              "phone"=> "014589327",
+              "siret"=> "",
+              "adresseFacturation"=> "Mon adresse",
+              "plainPassword"=> "password"
+            ]
+          ],
+          [
+             // Blank Field
+            [
+              "username"=> "yanb943333",
+              "fullname"=> "",
+              "email"=> "moi@moi.fr",
+              "adresse"=> "",
+              "phone"=> "",
+              "siret"=> "7825000333",
+              "adresseFacturation"=> "",
+              "plainPassword"=> ""
+            ]
+          ]
         ];
     }
 }

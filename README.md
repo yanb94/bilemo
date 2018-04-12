@@ -70,7 +70,17 @@ APP_ENV=<Your environnement 'dev' or 'prod'>
 DATABASE_URL=<Your database connection>
 ###< doctrine/doctrine-bundle ###
 
+###> lexik/jwt-authentication-bundle ###
+JWT_PRIVATE_KEY_PATH=<Your private key path>
+JWT_PUBLIC_KEY_PATH=<Your public key path>
+JWT_PASSPHRASE=<Your passphrase>
+###< lexik/jwt-authentication-bundle ###
+
 ```
+
+For optimal functionnal of the API you need to generate SSH keys and add the path of those keys to **.env**.
+
+For more information see LexikJWTAuthenticationBundle Doc : https://github.com/lexik/LexikJWTAuthenticationBundle/blob/master/Resources/doc/index.md#installation 
 
 ## Initialize Project
 
@@ -94,73 +104,19 @@ php bin\console doctrine:fixtures:load
 
 ### Authentification
 
-For be authentified you need to obtain an access token from facebook.
-For doing this you need to create a Facebook App with facebook developper account here : https://developers.facebook.com/
+For be authentified you need to obtain an access token from JWT.
 
-This app has to contain facebook login and use the scope public_profile and email.
+For obtained this token you need to connect with your username and you password on Json Format on this url : */api/login_check*. 
 
-Exemple of code to keep access token:
-
-```html
-<!DOCTYPE html>
-<html lang="fr">
-  <head>
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Example to get access token</title>
-  </head>
-  <body style="height:100vh;display:flex;align-items: center;justify-content: center;flex-direction: column;">
-	  <div id="access_token" style="width:50%;word-wrap: break-word;"></div>
-
-	  <fb:login-button 
-	    scope="public_profile,email"
-	    onlogin="checkLoginState();">
-	  </fb:login-button>
-
-	   <script>
-			window.fbAsyncInit = function() {
-			  FB.init({
-			    appId      : '<your Api id>',
-			    cookie     : true,
-			    xfbml      : true,
-			    version    : 'v2.12'
-			  });
-			    
-			  FB.AppEvents.logPageView();   
-			    
-			  FB.getLoginStatus(function(response) {
-			    if (response.status === 'connected') {
-			      document.getElementById("access_token").innerHTML = "<b>Access Token </b>"+response.authResponse.accessToken;
-			    }
-			  });
-			};
-
-			function checkLoginState() {
-			    FB.getLoginStatus(function(response) {
-			      if (response.status === 'connected') {
-			        document.getElementById("access_token").innerHTML = "<b>Access Token </b>"+response.authResponse.accessToken;
-			      }
-			    });
-			  }
-			   
-			(function(d, s, id) {
-			var js, fjs = d.getElementsByTagName(s)[0];
-			if (d.getElementById(id)) return;
-			js = d.createElement(s); js.id = id;
-			js.src = 'https://connect.facebook.net/fr_FR/sdk.js#xfbml=1&version=v2.12&appId=537965866575455&autoLogAppEvents=1';
-			fjs.parentNode.insertBefore(js, fjs);
-			}(document, 'script', 'facebook-jssdk'));
-	      
-	  </script>
-  </body>
-</html>
+```json
+{
+	"username": <Your username>,
+	"password": <Your password>
+}
 ```
-
-For adapt the way to recover the access token see the facebook documentation : https://developers.facebook.com/docs/ 
 
 When your user is logged you received an acess token that you have to pass to header of api request like this :
 
 ```sh
 Authorization : Bearer {access token}
 ```
-

@@ -1,8 +1,11 @@
 security:
+    encoders:
+        App\Entity\User:
+            algorithm: bcrypt
     # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
     providers:
-        facebook_user_provider:
-            id: facebook_user_provider
+        user_db:
+            entity: { class: App\Entity\User, property: username }
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
@@ -10,12 +13,27 @@ security:
         doc:
             pattern: ^/api/doc
             anonymous: true
+        registration:
+            pattern: ^/api/users$
+            methods: [POST]
+            anonymous: true
+        login:
+            pattern:  ^/api/login
+            stateless: true
+            anonymous: true
+            json_login:
+                check_path: /api/login_check
+                username_path: username
+                password_path: password
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
         main:
             pattern:   ^/api
             stateless: true
-            simple_preauth:
-                authenticator: App\Security\FacebookAuthenticator
-            provider: facebook_user_provider
+            provider: user_db
+            guard:
+                authenticators:
+                    - lexik_jwt_authentication.jwt_token_authenticator
 
             # activate different ways to authenticate
 
@@ -28,6 +46,8 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
+        - { path: ^/api/login, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/users$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api/doc, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/, roles: [ ROLE_USER ] }
         # - { path: ^/profile, roles: ROLE_USER }

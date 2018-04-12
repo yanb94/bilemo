@@ -8,12 +8,14 @@ use ApiPlatform\Core\Annotation\ApiResource;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Annotation\Groups;
 use App\Annotation\UserAware;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
  * @UniqueEntity("username")
  * @UniqueEntity("email")
- * @ApiResource(collectionOperations={},itemOperations={"get"},attributes={
+ * @UniqueEntity("siret")
+ * @ApiResource(collectionOperations={"get","post"={"route_name"="api_users_post"}},itemOperations={"get"},attributes={
  *     "normalization_context"={"groups"={"read"}},
  *     "denormalization_context"={"groups"={"write"}}
  * })
@@ -31,6 +33,7 @@ class User implements UserInterface
 
     /**
      * @var string
+     * @Assert\NotBlank()
      * @ORM\Column(name="username", type="string", length=255, unique=true)
      * @Groups({"read","write"})
      */
@@ -38,6 +41,8 @@ class User implements UserInterface
 
     /**
      * @var string
+     * @Assert\NotBlank()
+     * @Assert\Length(min = 2, max = 80)
      * @ORM\Column(name="fullname", type="string", length=255)
      * @Groups({"read","write"})
      */
@@ -45,6 +50,8 @@ class User implements UserInterface
 
     /**
      * @var string
+     * @Assert\NotBlank()
+     * @Assert\Email()
      * @ORM\Column(name="email", type="string", length=255, unique=true)
      * @Groups({"read","write"})
      */
@@ -52,6 +59,8 @@ class User implements UserInterface
 
     /**
      * @var string
+     * @Assert\NotBlank()
+     * @Assert\Length(min = 10, max = 80)
      * @ORM\Column(name="adresse", type="string", length=255)
      * @Groups({"read","write"})
      */
@@ -59,6 +68,8 @@ class User implements UserInterface
 
     /**
      * @var string
+     * @Assert\NotBlank()
+     * @Assert\Length(min = 9, max = 20)
      * @ORM\Column(name="phone", type="string", length=255)
      * @Groups({"read","write"})
      */
@@ -66,6 +77,8 @@ class User implements UserInterface
 
     /**
      * @var string
+     * @Assert\NotBlank()
+     * @Assert\Length(min = 9, max = 20)
      * @ORM\Column(name="siret", type="string", length=255, unique=true)
      * @Groups({"read","write"})
      */
@@ -73,21 +86,38 @@ class User implements UserInterface
 
     /**
      * @var string
+     * @Assert\NotBlank()
+     * @Assert\Length(min = 10, max = 80)
      * @ORM\Column(name="adresseFacturation", type="string", length=255)
      * @Groups({"read","write"})
      */
     private $adresseFacturation;
 
+    /**
+     * @var string
+     * @ORM\Column(name="password", type="string", length=255)
+     */
+    private $password;
 
-    public function __construct($fullname, $facebookId, $email)
+    /**
+     * @var string
+     * @Assert\NotBlank()
+     * @Assert\Length(min = 8, max = 80)
+     * @Groups({"write"})
+     */
+    private $plainPassword;
+
+    /**
+    * @ORM\Column(name="salt", type="string", length=255)
+    */
+    private $salt;
+
+
+    public function __construct()
     {
-        $this->fullname = $fullname;
-        $this->username = $facebookId;
-        $this->email = $email;
-        $this->adresse = "1, Allée Boris Vian";
-        $this->phone = "0100000000";
-        $this->adresseFacturation = "1, Allée Boris Vian";
-        $this->siret = "80519095600013";
+        if (is_null($this->id)) {
+            $this->salt = base_convert(sha1(uniqid(mt_rand(), true)), 16, 36);
+        }
     }
 
     /**
@@ -246,13 +276,59 @@ class User implements UserInterface
 
     public function getPassword()
     {
+        return $this->password;
     }
 
     public function getSalt()
     {
+        return $this->salt;
     }
 
     public function eraseCredentials()
     {
+    }
+
+    /**
+     * @param string $password
+     *
+     * @return self
+     */
+    public function setPassword($password)
+    {
+        $this->password = $password;
+
+        return $this;
+    }
+
+    /**
+     * @param mixed $salt
+     *
+     * @return self
+     */
+    public function setSalt($salt)
+    {
+        $this->salt = $salt;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPlainPassword()
+    {
+        return $this->plainPassword;
+    }
+
+    /**
+     * @param string $plainPassword
+     *
+     * @return self
+     */
+    public function setPlainPassword($plainPassword)
+    {
+        $this->plainPassword = $plainPassword;
+
+        return $this;
     }
 }
